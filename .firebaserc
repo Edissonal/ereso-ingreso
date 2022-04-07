@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "ingreso-egreso-c0444": {
+      "hosting": {
+        "egresoApp": [
+          "ingreso-egreso-c0444"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "ingreso-egreso-c0444"
+  }
+}

@@ -20,6 +20,9 @@ import { provideAuth,getAuth } from '@angular/fire/auth';
 import { provideDatabase,getDatabase } from '@angular/fire/database';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
+import { StoreModule } from '@ngrx/store';
+import { appReducers } from './app.reducer';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 
 @NgModule({
@@ -44,7 +47,12 @@ import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
     provideAuth(() => getAuth()),
     provideDatabase(() => getDatabase()),
   //  provideFirestore(() => getFirestore())
-      AngularFirestoreModule
+    AngularFirestoreModule,
+    StoreModule.forRoot(appReducers),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25, // Retains last 25 states
+      logOnly: environment.production, // Restrict extension to log-only mode
+    }),
 
   ],
   providers: [],

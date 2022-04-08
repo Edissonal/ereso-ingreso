@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { AppState } from '../../app.reducer';
+import * as ui from '../../shared/ui.actions';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -10,13 +14,16 @@ import Swal from 'sweetalert2';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent implements OnInit,OnDestroy {
 
-  registroForm!: FormGroup ;
+  registroForm!: FormGroup;
+  uisubscription!: Subscription;
+  cargando: boolean = false;
 
   constructor(private fb: FormBuilder,
               private authservice: AuthService,
-              private router:Router
+              private router: Router,
+              private store:Store<AppState>
   ) { }
 
   ngOnInit(): void {
@@ -26,6 +33,9 @@ export class RegisterComponent implements OnInit {
       correo: ['', [Validators.required,Validators.email]],
       password:['',Validators.required]
     });
+
+    this.uisubscription = this.store.select('ui')
+      .subscribe(ui => this.cargando = ui.isloading);
   }
 
 
@@ -35,19 +45,22 @@ export class RegisterComponent implements OnInit {
     if (this.registroForm.invalid) { return; }
 
     //validacione
-    Swal.fire({
+  /*  Swal.fire({
       title: 'Espere por favor...',
       didOpen: () => {
         Swal.showLoading();
       }
-    });
+    });*/
+
+    this.store.dispatch(ui.isloading());
     
     console.log(this.registroForm.value);
     const { nombre, correo, password } = this.registroForm.value;
     this.authservice.crearusuario(nombre, correo, password)
       .then(credenciales => {
         console.log(credenciales);
-        Swal.close();
+    //    Swal.close();
+    this.store.dispatch(ui.stoploading());
         this.router.navigate(['/']);
       })
       .catch(err => {
@@ -61,6 +74,10 @@ export class RegisterComponent implements OnInit {
       });
 
     
+  }
+
+  ngOnDestroy(): void {
+    this.uisubscription.unsubscribe();
   }
 
 }
